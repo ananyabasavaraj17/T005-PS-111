@@ -1,20 +1,22 @@
-
 from datetime import datetime
 from decimal import Decimal
 
-from sqlalchemy import DateTime, ForeignKey, Integer, Numeric, String, Text
+from sqlalchemy import DateTime, ForeignKey, Numeric, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database import Base
+from app.models.id_generator import get_id_generator
 
 
 class Chargeback(Base):
     __tablename__ = "chargebacks"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    id: Mapped[str] = mapped_column(
+        String(50), primary_key=True, default=get_id_generator("chb")
+    )
 
-    pledge_id: Mapped[int] = mapped_column(
-        ForeignKey("pledges.id"), nullable=False
+    pledge_id: Mapped[str] = mapped_column(
+        String(50), ForeignKey("pledges.id"), nullable=False
     )
 
     amount: Mapped[Decimal] = mapped_column(

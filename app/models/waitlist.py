@@ -1,24 +1,26 @@
-
 from datetime import datetime
 from decimal import Decimal
 
-from sqlalchemy import DateTime, ForeignKey, Integer, Numeric, String
+from sqlalchemy import DateTime, ForeignKey, Numeric, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database import Base
+from app.models.id_generator import get_id_generator
 
 
 class Waitlist(Base):
     __tablename__ = "waitlist"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
-
-    campaign_id: Mapped[int] = mapped_column(
-        ForeignKey("campaigns.id"), nullable=False
+    id: Mapped[str] = mapped_column(
+        String(50), primary_key=True, default=get_id_generator("wtl")
     )
 
-    tier_id: Mapped[int] = mapped_column(
-        ForeignKey("reward_tiers.id"), nullable=False
+    campaign_id: Mapped[str] = mapped_column(
+        String(50), ForeignKey("campaigns.id"), nullable=False
+    )
+
+    tier_id: Mapped[str] = mapped_column(
+        String(50), ForeignKey("reward_tiers.id"), nullable=False
     )
 
     backer_id: Mapped[str] = mapped_column(

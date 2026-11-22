@@ -7,7 +7,7 @@ from app.models.reward_tier import RewardTier
 from app.services.waitlist_service import allocate_next_backer
 
 
-def cancel_pledge(db: Session, pledge_id: int):
+def cancel_pledge(db: Session, pledge_id: str | int):
     # Find pledge
     pledge = db.get(Pledge, pledge_id)
 
@@ -39,8 +39,9 @@ def cancel_pledge(db: Session, pledge_id: int):
     db.commit()
 
     # Allocate the freed reward to the next eligible backer
+    allocated = None
     if pledge.tier_id is not None:
-        return allocate_next_backer(
+        allocated = allocate_next_backer(
             db,
             pledge.campaign_id,
             pledge.tier_id,
@@ -48,4 +49,4 @@ def cancel_pledge(db: Session, pledge_id: int):
 
     evaluate_stretch_goals(db, pledge.campaign_id)
 
-    return None
+    return allocated

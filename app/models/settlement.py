@@ -1,4 +1,3 @@
-
 from datetime import datetime
 from decimal import Decimal
 
@@ -13,15 +12,18 @@ from sqlalchemy import (
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database import Base
+from app.models.id_generator import get_id_generator
 
 
 class Settlement(Base):
     __tablename__ = "settlements"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    id: Mapped[str] = mapped_column(
+        String(50), primary_key=True, default=get_id_generator("stl")
+    )
 
-    campaign_id: Mapped[int] = mapped_column(
-        ForeignKey("campaigns.id"), nullable=False
+    campaign_id: Mapped[str] = mapped_column(
+        String(50), ForeignKey("campaigns.id"), nullable=False
     )
 
     pledged_amount: Mapped[Decimal] = mapped_column(

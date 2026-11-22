@@ -1,4 +1,3 @@
-
 from datetime import datetime
 from decimal import Decimal
 
@@ -6,15 +5,18 @@ from sqlalchemy import DateTime, ForeignKey, Integer, Numeric, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database import Base
+from app.models.id_generator import get_id_generator
 
 
 class Payment(Base):
     __tablename__ = "payments"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    id: Mapped[str] = mapped_column(
+        String(50), primary_key=True, default=get_id_generator("pay")
+    )
 
-    pledge_id: Mapped[int] = mapped_column(
-        ForeignKey("pledges.id"), nullable=False
+    pledge_id: Mapped[str] = mapped_column(
+        String(50), ForeignKey("pledges.id"), nullable=False
     )
 
     amount: Mapped[Decimal] = mapped_column(
