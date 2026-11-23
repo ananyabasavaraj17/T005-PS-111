@@ -20,6 +20,7 @@ def create_campaign(
     funding_model: str,
     start_date: datetime,
     deadline: datetime,
+    creator_id: str = None,
 ):
     # Validate funding goal
     goal_amount = Decimal(str(goal_amount))
@@ -36,11 +37,15 @@ def create_campaign(
     # Validate campaign duration
     duration = (deadline - start_date).total_seconds() / 86400
 
+    if deadline <= start_date:
+        raise ValueError("Deadline must be after the start date.")
+
     if not MINIMUM_DURATION <= duration <= MAXIMUM_DURATION:
         raise ValueError("Campaign duration must be 15 to 60 days.")
 
-    if deadline <= start_date:
-        raise ValueError("Deadline must be after the start date.")
+    # Validate creator
+    if not creator_id:
+        raise ValueError("Creator ID is required.")
 
     # Create campaign
     campaign = Campaign(
@@ -51,8 +56,10 @@ def create_campaign(
         start_date=start_date,
         deadline=deadline,
         status="DRAFT",
+        creator_id=creator_id,
     )
 
+    # Save campaign
     db.add(campaign)
     db.commit()
     db.refresh(campaign)
