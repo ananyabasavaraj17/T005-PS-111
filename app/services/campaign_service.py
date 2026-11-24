@@ -65,3 +65,44 @@ def create_campaign(
     db.refresh(campaign)
 
     return campaign
+
+
+def launch_campaign(
+    db: Session,
+    campaign_id: str | int,
+    launch_time: datetime | None = None,
+) -> Campaign:
+    """Activate a campaign from DRAFT to LIVE (BR-04)."""
+    campaign = db.get(Campaign, campaign_id)
+    if campaign is None:
+        raise ValueError("Campaign not found.")
+
+    if campaign.status != "DRAFT":
+        raise ValueError(
+            f"Campaign cannot be launched from status '{campaign.status}'. Only DRAFT campaigns can be launched."
+        )
+
+    campaign.status = "LIVE"
+    if launch_time is not None:
+        campaign.start_date = launch_time
+
+    db.commit()
+    db.refresh(campaign)
+    return campaign
+
+
+def record_failed_delivery(
+    db: Session,
+    campaign_id: str | int,
+    current_time: datetime | None = None,
+) -> Campaign:
+    """Record a failed delivery event for a campaign (BR-33)."""
+    campaign = db.get(Campaign, campaign_id)
+    if campaign is None:
+        raise ValueError("Campaign not found.")
+
+    campaign.has_failed_delivery = True
+    db.commit()
+    db.refresh(campaign)
+    return campaign
+

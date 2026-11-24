@@ -1,12 +1,14 @@
 
-from app.services.stretch_goal_service import evaluate_stretch_goals
+from datetime import datetime
 from decimal import Decimal
 
 from sqlalchemy.orm import Session
 
 from app.models.campaign import Campaign
+from app.models.creator import Creator
 from app.models.pledge import Pledge
 from app.models.reward_tier import RewardTier
+from app.services.stretch_goal_service import evaluate_stretch_goals
 
 
 MAX_BACKER_CAP = Decimal("200000.00")
@@ -33,9 +35,21 @@ def create_pledge(
     if campaign.status != "LIVE":
         raise ValueError("Campaign is not live.")
 
-    # 2. Prevent creator from pledging
+    # 2. Prevent creator and team members from pledging (BR-39)
     if backer_id == campaign.creator_id:
         raise ValueError("Creator cannot pledge to their own campaign.")
+
+    creator = db.get(Creator, campaign.creator_id)
+    if creator and creator.team_member_backer_ids:
+        team_members = [
+            tid.strip()
+            for tid in creator.team_member_backer_ids.split(";")
+            if tid.strip()
+        ]
+        if backer_id in team_members:
+            raise ValueError(
+                "Creator team members cannot pledge to their own campaign."
+            )
 
     # 3. Validate contribution
     if amount <= 0 or extra_contribution < 0:
