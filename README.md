@@ -75,3 +75,9 @@ All 72 tests should pass.
 ## License
 
 MIT License (see LICENSE file if present).
+
+## Project Demo
+
+Watch the 4-minute capstone demonstration:
+
+[Watch the Project Demo](https://drive.google.com/file/d/17ES45O0A33RAFa0bkUYv5C9YJeUuyHoA/view?usp=sharing)
